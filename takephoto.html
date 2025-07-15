@@ -1,0 +1,54 @@
+
+<head>
+  <title>Camera App</title>
+</head>
+<body>
+
+<h2>Camera View</h2>
+
+
+<video id="video" autoplay width="320" height="240"></video><br>
+
+
+<button onclick="capturePhoto()">Capture</button>
+<button onclick="stopCamera()">Stop Camera</button>
+
+
+<canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+<a id="downloadLink" style="display:none;">Download</a>
+
+<script>
+  let stream = null; // to store the camera stream globally
+
+   navigator.mediaDevices.getUserMedia({ video: true })
+    .then(mediaStream => {
+      stream = mediaStream;
+      document.getElementById('video').srcObject = stream;
+    })
+    .catch(err => console.error("Camera error:", err));
+
+    function capturePhoto() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = canvas.toDataURL('image/png');
+    const link = document.getElementById('downloadLink');
+    link.href = imageData;
+    link.download = 'captured.png';
+    link.click();
+  }
+
+ 
+  function stopCamera() {
+    if (stream) {
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop()); // stop all tracks
+      document.getElementById('video').srcObject = null;
+    }
+  }
+</script>
+
+</body>
+

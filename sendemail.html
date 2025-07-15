@@ -1,0 +1,28 @@
+<head>
+  <title>Mail Sender</title>
+</head>
+<body>
+
+<h2>Send Email</h2>
+
+<input type="email" id="from" placeholder="Your Email"><br><br>
+<input type="email" id="to" placeholder="Recipient Email"><br><br>
+<textarea id="message" placeholder="Enter your message"></textarea><br><br>
+
+<button onclick="sendMail()">Send Email</button>
+
+<script>
+  function sendMail() {
+    const from = document.getElementById('from').value;
+    const to = document.getElementById('to').value;
+    const message = document.getElementById('message').value;
+
+    const subject = "Message from " + from;
+    const body = encodeURIComponent(message);
+
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  }
+</script>
+
+</body>
+
