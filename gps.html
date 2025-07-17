@@ -1,0 +1,101 @@
+
+<head>
+  <title>Student Camera + Location App</title>
+  <style>
+    body { text-align: center; font-family: Arial; background-color: #eef2f3; padding: 20px; }
+    video, img { width: 300px; margin: 10px; border: 2px solid #333; border-radius: 10px; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+  <h2>📷 Camera and 🌍 Location</h2>
+
+  <video id="video" autoplay></video><br>
+  <button onclick="startCamera()">Start Camera</button>
+  <button onclick="stopCamera()">Stop Camera</button><br>
+
+  <button onclick="capturePhoto()">Take Photo</button><br>
+  <img id="photo" alt="Your captured photo will appear here"><br>
+
+  <button onclick="getLocation()">Get My Location</button>
+  <p id="location">Location will be shown here</p>
+
+  <button onclick="openGoogleMap()">Open in Google Maps</button>
+  <button onclick="getDirections()">Get Directions</button>
+
+  <script>
+    let video = document.getElementById("video");
+    let photo = document.getElementById("photo");
+    let locationText = document.getElementById("location");
+    let stream;
+    let latitude = "";
+    let longitude = "";
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        alert("Camera not working or permission denied.");
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
+    }
+
+    function capturePhoto() {
+      let canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      let imageData = canvas.toDataURL("image/png");
+      photo.src = imageData;
+
+      // Automatically download the photo
+      let a = document.createElement("a");
+      a.href = imageData;
+      a.download = "photo.png";
+      a.click();
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+          locationText.innerText = "Latitude: " + latitude + ", Longitude: " + longitude;
+        }, function() {
+          alert("Could not get location.");
+        });
+      } else {
+        alert("Your browser doesn't support GPS.");
+      }
+    }
+
+    function openGoogleMap() {
+      if (latitude && longitude) {
+        window.open(`https://www.google.com/maps?q=${latitude},${longitude}`);
+      } else {
+        alert("Get location first.");
+      }
+    }
+
+    function getDirections() {
+      if (!latitude || !longitude) {
+        alert("Get your location first.");
+        return;
+      }
+      let place = prompt("Enter place you want to go (e.g. Delhi, school, home):");
+      if (place) {
+        let url = `https://www.google.com/maps/dir/${latitude},${longitude}/${encodeURIComponent(place)}`;
+        window.open(url);
+      }
+    }
+  </script>
+
+</body>

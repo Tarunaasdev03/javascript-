@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Capture and Email Photo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    video, canvas {
+      border: 1px solid black;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Capture and Email Photo</h2>
+
+<input type="email" id="receiverEmail" placeholder="Enter recipient email"><br><br>
+
+<video id="video" width="300" height="200" autoplay></video><br>
+<canvas id="canvas" width="300" height="200" style="display:none;"></canvas><br>
+
+<button onclick="startCamera()">Start Camera</button>
+<button onclick="capturePhoto()">Capture</button>
+<button onclick="sendEmail()">Send Email</button>
+
+<p id="status"></p>
+
+<script>
+  let stream;
+
+  function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(mediaStream) {
+        stream = mediaStream;
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+      })
+      .catch(function(error) {
+        alert("Camera access failed: " + error);
+      });
+  }
+
+  function capturePhoto() {
+    const canvas = document.getElementById('canvas');
+    const video = document.getElementById('video');
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.style.display = 'block';
+  }
+
+  function sendEmail() {
+  const email = document.getElementById('receiverEmail').value;
+  const canvas = document.getElementById('canvas');
+
+  // Compress the image to reduce size
+  const imageData = canvas.toDataURL("image/jpeg", 0.5); // 50% quality
+
+  if (!email) {
+    alert("Please enter recipient email.");
+    return;
+  }
+
+  emailjs.init("J30khA2KFAuipVmdO");
+
+  const serviceID = 'service_y1o2q2k';
+  const templateID ='template_z2q5w2l';
+
+  const templateParams = {
+    to_email: email,
+    image_data: imageData
+  };
+
+  emailjs.send(serviceID, templateID, templateParams)
+    .then(function(response) {
+      document.getElementById('status').innerText = "Email sent successfully!";
+    }, function(error) {
+      document.getElementById('status').innerText = "Failed to send email: " + error.text;
+    });
+}
+
+
+  </script>
+
+</body>
+</html>
